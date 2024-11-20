@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
             statusElement.textContent = 'Отправляем запрос на сервер...';
 
             // Отправка данных на сервер
-            const response = await fetch('http://193.233.165.83:3000/claim', {
+            const response = await fetch('https://5c51-193-233-165-83.ngrok-free.app/claim', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
