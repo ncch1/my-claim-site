@@ -1,67 +1,96 @@
-// script.js
+const connectWalletButton = document.getElementById('connectWallet');
+const claimButton = document.getElementById('claimButton');
+const claimSection = document.getElementById('claim-section');
+const statusElement = document.getElementById('status');
+const connectionStatus = document.getElementById('connection-status');
 
-document.getElementById('claimButton').addEventListener('click', async () => {
-    const status = document.getElementById('status');
-    status.textContent = '';
+// Адрес вашего контракта
+const contractAddress = '0xa0e2d4b6a8ff992d2ecfc51d138760703c739d40';
 
-    // Проверяем, доступен ли Ethereum-провайдер (MetaMask)
+// Убедитесь, что ваш релэйер запущен на правильном сервере
+const relayServerUrl = 'http://localhost:3000/claim';
+
+// Функция подключения к MetaMask
+async function connectWallet() {
     if (typeof window.ethereum !== 'undefined') {
-        // Создаем провайдера
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-
         try {
-            // Запрашиваем доступ к аккаунту пользователя
-            await provider.send('eth_requestAccounts', []);
+            // Запрашиваем доступ к аккаунтам MetaMask
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
 
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
             const signer = provider.getSigner();
+
             const userAddress = await signer.getAddress();
-
-            const amountInput = document.getElementById('amount');
-            const amount = amountInput.value;
-
-            if (!amount || amount <= 0) {
-                status.textContent = 'Пожалуйста, введите корректную сумму.';
-                return;
-            }
-
-            const amountWei = ethers.utils.parseEther(amount);
-
-            // Адрес вашего контракта
-            const contractAddress = '0xa0e2d4b6a8ff992d2ecfc51d138760703c739d40';
-
-            // Генерируем хэш сообщения
-            const messageHash = ethers.utils.solidityKeccak256(
-                ['uint256', 'address'],
-                [amountWei.toString(), contractAddress]
-            );
-            const messageHashBytes = ethers.utils.arrayify(messageHash);
-
-            // Подписываем сообщение
-            const signature = await signer.signMessage(messageHashBytes);
-
-            // Отправляем данные на релэйер
-            const response = await fetch('http://localhost:3000/claim', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    amountWei: amountWei.toString(),
-                    signature: signature
-                })
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                status.textContent = 'Транзакция успешно отправлена релэйером!';
-            } else {
-                status.textContent = 'Ошибка релэйера: ' + result.message;
-            }
+            connectionStatus.textContent = `Подключен: ${userAddress}`;
+            connectionStatus.style.color = 'green';
+            claimSection.classList.remove('hidden');
         } catch (error) {
-            console.error(error);
-            status.textContent = 'Ошибка: ' + error.message;
+            connectionStatus.textContent = `Ошибка подключения: ${error.message}`;
+            connectionStatus.style.color = 'red';
         }
     } else {
-        status.textContent = 'Пожалуйста, установите MetaMask или используйте поддерживаемый браузер.';
+        connectionStatus.textContent = 'MetaMask не установлен. Установите MetaMask и обновите страницу.';
+        connectionStatus.style.color = 'red';
     }
-});
+}
+
+// Функция отправки запроса на клейм
+async function sendClaim() {
+    const amountElement = document.getElementById('amount');
+    const amount = amountElement.value;
+
+    if (!amount || amount <= 0) {
+        statusElement.textContent = 'Введите корректную сумму.';
+        statusElement.style.color = 'red';
+        return;
+    }
+
+    statusElement.textContent = 'Подписываем сообщение...';
+
+    try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+
+        const userAddress = await signer.getAddress();
+        const amountWei = ethers.utils.parseEther(amount);
+
+        // Генерация хэша сообщения
+        const messageHash = ethers.utils.solidityKeccak256(
+            ['uint256', 'address'],
+            [amountWei.toString(), contractAddress]
+        );
+        const messageHashBytes = ethers.utils.arrayify(messageHash);
+
+        // Подписание сообщения
+        const signature = await signer.signMessage(messageHashBytes);
+
+        statusElement.textContent = 'Отправляем запрос на сервер...';
+
+        // Отправка данных на сервер
+        const response = await fetch(relayServerUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amountWei: amountWei.toString(),
+                signature: signature
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            statusElement.textContent = `Транзакция успешно отправлена! TxHash: ${result.txHash}`;
+            statusElement.style.color = 'green';
+        } else {
+            statusElement.textContent = `Ошибка: ${result.message}`;
+            statusElement.style.color = 'red';
+        }
+    } catch (error) {
+        statusElement.textContent = `Ошибка: ${error.message}`;
+        statusElement.style.color = 'red';
+    }
+}
+
+// Обработчики событий
+connectWalletButton.addEventListener('click', connectWallet);
+claimButton.addEventListener('click', sendClaim);
