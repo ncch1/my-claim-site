@@ -68,11 +68,31 @@ document.addEventListener('DOMContentLoaded', () => {
             // Подписание сообщения
             const signature = await signer.signMessage(messageHashBytes);
 
-            statusElement.textContent = `Запрос подписан. Сигнатура: ${signature}`;
-            statusElement.style.color = 'green';
+            statusElement.textContent = 'Отправляем запрос на сервер...';
 
-            // Здесь можно добавить отправку на сервер релэйера, если нужно
+            // Отправка данных на сервер
+            const response = await fetch('http://localhost:3000/claim', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    amountWei: amountWei.toString(),
+                    signature: signature,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                statusElement.textContent = `Транзакция успешно отправлена! TxHash: ${result.txHash}`;
+                statusElement.style.color = 'green';
+            } else {
+                statusElement.textContent = `Ошибка: ${result.message}`;
+                statusElement.style.color = 'red';
+            }
         } catch (error) {
+            console.error('Ошибка:', error);
             statusElement.textContent = `Ошибка: ${error.message}`;
             statusElement.style.color = 'red';
         }
