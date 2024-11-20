@@ -1,25 +1,63 @@
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f9;
+}
+
+.container {
+    text-align: center;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 300px;
 }
 
 h1 {
     color: #333;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin: 15px 0 5px;
+    font-size: 16px;
 }
 
 input {
-    padding: 8px;
+    width: calc(100% - 20px);
+    padding: 10px;
     font-size: 16px;
-    width: 200px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
 button {
     padding: 10px 15px;
     font-size: 16px;
+    margin-top: 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
 }
 
+button:hover {
+    background-color: #0056b3;
+}
+
 #status {
-    margin-top: 20px;
-    white-space: pre-wrap; /* Для сохранения переносов строк */
+    margin-top: 15px;
+    color: #555;
+    font-size: 14px;
+}
+
+.hidden {
+    display: none;
 }
