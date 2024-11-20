@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
             statusElement.textContent = 'Отправляем запрос на сервер...';
 
             // Отправка данных на сервер
-            const response = await fetch('http://localhost:3000/claim', {
+            const response = await fetch('http://193.233.165.83:3000/claim', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
