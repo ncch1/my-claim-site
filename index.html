@@ -2,21 +2,23 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Клейм Ether</title>
-    <!-- Подключение CSS-файла (необязательно) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claim Ether</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Клейм Ether</h1>
-    <p>Введите сумму Ether для клейма:</p>
-    <input type="number" id="amount" placeholder="0.1" step="0.0001" min="0">
-    <button id="claimButton">Подписать и получить Ether</button>
-
-    <p id="status"></p>
-
-    <!-- Подключаем библиотеку ethers.js -->
+    <div class="container">
+        <h1>Claim Ether</h1>
+        <p id="connection-status">Подключите MetaMask для продолжения.</p>
+        <button id="connectWallet">Подключить MetaMask</button>
+        <div id="claim-section" class="hidden">
+            <label for="amount">Введите сумму (ETH):</label>
+            <input type="number" id="amount" placeholder="0.1" step="0.0001" min="0.0001">
+            <button id="claimButton">Отправить запрос</button>
+        </div>
+        <p id="status"></p>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
-    <!-- Подключаем наш JavaScript-файл -->
     <script src="script.js"></script>
 </body>
 </html>
